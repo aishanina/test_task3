@@ -1,0 +1,109 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+</head>
+<body>
+<div id="desk"></div>
+<div id="last_el"></div>
+
+<script>
+// глобальные переменные и выхов функции на прорисовку начальной таблицы
+var color_mas = getColor();
+var activate = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+var counter = 0;
+
+CreateTable();
+
+// функция getColor - формирует массив из 8 пар произвольных цветов
+// для дальнейшей игры
+function getColor() {
+  var letters = '0123456789ABCDEF';
+  var color;
+  var mas = [];
+  
+  for (var i = 0; i < 8; i++){
+    color = '#';
+    for (var j = 0; j < 6; j++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    mas[i] = color;
+    mas[i+8] = color;
+  }
+  return mas.sort(function(){
+  	return Math.random() - 0.5;
+	});
+}
+
+// функция CreateTable - рисует поле 4х4 для игры,
+// при клике на клетку отрабатывает событие, которое вызывает функцию fillBox
+function CreateTable(){
+	var desk = document.getElementById('desk');
+	table = document.createElement('table');
+  desk.appendChild(table);
+  table.border = '1';
+  var idStr = 0;  
+
+  for (var i = 0; i < 4; i++){
+  	var row = table.insertRow(i);
+		for(var j = 0; j < 4; j++){                   
+    	var cell = row.insertCell(j);  
+      
+      // каждой ячейке присваиваем номер (idStr - id ячейки) и раскрашиваем
+      // в белый цвет
+      idStr ++;      
+      cell.style.height = '20px';
+      cell.style.width = '20px';      
+      cell.id = idStr;
+      cell.style.backgroundColor = "white";   
+      cell.onclick = fillBox;
+		}
+	}  
+}
+
+// функция fillBox - проверяем ячейку, подкрашивает или обнуляет цвет у ячейки
+function fillBox(e){ 
+var newcolor = color_mas[event.target.id-1];
+var k = -1;
+
+// проверяем парную ячейку?
+for (var i = 0; i < color_mas.length; i++){
+	if ((event.target.id-1) != i && newcolor == color_mas[i]) {
+		k = i;    
+  }
+}
+  // если найдена пара на эту ячейку, тогда далее ее не рассматриваем
+  if (activate[event.target.id-1] > 0){
+    alert ('Пара для указанной ячейки уже найдена. Для продолжения игры кликните на любую белую ячейку.');
+  }
+  // первая открытая ячейка из пары
+  else if (activate[event.target.id-1] == 0 && counter == 0) {
+    document.getElementById(event.target.id).style.backgroundColor = newcolor;
+    counter ++;
+    activate[event.target.id-1] = 1;
+    document.getElementById('last_el').value = event.target.id-1;
+  }
+  // если нашли ранее окрашенную ячейку и ее цвет совпадает с нашим, тогда круто! продолжаем игру
+  else {
+     
+     if (activate[k] == 1){
+      document.getElementById(event.target.id).style.backgroundColor = newcolor;
+      activate[event.target.id-1] = 2;
+      activate[k] = 2;  
+      counter = 0;  
+     }
+     else {
+      document.getElementById(event.target.id).style.backgroundColor = "white";
+      k = document.getElementById('last_el').value;
+      document.getElementById(k+1).style.backgroundColor = "white";
+      activate[event.target.id-1] = 0;
+      activate[k+1] = 0; 
+      counter = 0;
+     }
+
+  }  
+} 
+
+</script>
+</body> 
+</html>
